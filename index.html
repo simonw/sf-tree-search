@@ -35,7 +35,7 @@ input[type="search"] {
     <p><input type="search" name="_search"> <input type="submit" value="Search"></p>
 </form>
 <div id="map"></div>
-
+<p><a href="https://github.com/simonw/sf-tree-search">About this demo</a></p>
 <script type="text/javascript">
 var url = 'https://san-francisco.datasettes.com/sf-trees.json?sql=select+Latitude%2C+Longitude%2C+qSpecies.value+as+qSpecies%2C%0D%0A++qAddress%0D%0Afrom+Street_Tree_List+%0D%0A++join+qSpecies+on+Street_Tree_List.qSpecies+%3D+qSpecies.id%0D%0Awhere+Street_Tree_List.rowid+in+%28select+rowid+from+%5BStreet_Tree_List_fts%5D+where+%5BStreet_Tree_List_fts%5D+match+%3Asearch%29';
 var treeForm = document.getElementById('tree-search');
