@@ -43,6 +43,7 @@ var searchInput = document.getElementsByName('_search')[0];
 searchInput.focus();
 var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
+        detectRetina: true,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ'
     }),
     latlng = L.latLng(37.7881014522033, -122.420267712778);
