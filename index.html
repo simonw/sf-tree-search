@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>San Francisco tree search</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ==" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js" integrity="sha512-WXoSHqw/t26DszhdMhOXOkI7qCiv5QWXhH9R7CgvgZMHz1ImlkVQ3uNsiQKu5wwbbxtPzFXd1hK4tzno2VqhpA==" crossorigin=""></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/example/screen.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.0.3/dist/leaflet.markercluster-src.js"></script>
+<style>
+body {
+    font-family: helvetica, sans-serif;
+}
+input {
+    border: 1px solid #ccc;
+    font-size: 1.1em;
+    border-radius: 3px;
+    padding: 3px 5px;
+}
+input[type="search"] {
+    width: 60vw;
+}
+#map {
+    width: 95vw;
+    height: 60vw;
+    border: 1px solid #ccc;
+}
+</style>
+</head>
+<body>
+
+<h1>SF tree search</h1>
+<form id="tree-search" action="https://san-francisco.datasettes.com/sf-trees/Street_Tree_List">
+    <p><input type="search" name="_search"> <input type="submit" value="Search"></p>
+</form>
+<div id="map"></div>
+
+<script type="text/javascript">
+var url = 'https://san-francisco.datasettes.com/sf-trees.json?sql=select+Latitude%2C+Longitude%2C+qSpecies.value+as+qSpecies%2C%0D%0A++qAddress%0D%0Afrom+Street_Tree_List+%0D%0A++join+qSpecies+on+Street_Tree_List.qSpecies+%3D+qSpecies.id%0D%0Awhere+Street_Tree_List.rowid+in+%28select+rowid+from+%5BStreet_Tree_List_fts%5D+where+%5BStreet_Tree_List_fts%5D+match+%3Asearch%29';
+var treeForm = document.getElementById('tree-search');
+var searchInput = document.getElementsByName('_search')[0];
+searchInput.focus();
+var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ'
+    }),
+    latlng = L.latLng(37.7881014522033, -122.420267712778);
+
+var map = L.map('map', {
+    center: latlng,
+    zoom: 13,
+    layers: [tiles]
+});
+var currentLayer = null;
+function runSearch(q) {
+    if (currentLayer) {
+        map.removeLayer(currentLayer);
+    }
+
+    currentLayer = L.markerClusterGroup({
+        chunkedLoading: true
+    });
+
+    var markerList = [];
+
+    fetch(url + '&search=' + encodeURIComponent(q)).then(r => r.json()).then(data => {
+        history.pushState({q: q}, null, document.location.pathname + '?q=' + encodeURIComponent(q));
+        for (var i = 0; i < data.rows.length; i++) {
+            var tree = data.rows[i];
+            if (tree[0] && tree[1]) {
+                var title = tree[2] + ' - ' + tree[3];
+                var marker = L.marker(L.latLng(tree[0], tree[1]), { title: title });
+                marker.bindPopup(title);
+                markerList.push(marker);
+            }
+        }
+        currentLayer.addLayers(markerList);
+        map.addLayer(currentLayer);
+        map.fitBounds(currentLayer.getBounds());
+    });
+}
+window.onpopstate = function(ev) {
+    if (ev.state) {
+        searchInput.value = ev.state.q;
+        runSearch(ev.state.q);
+    }
+}
+treeForm.onsubmit = function(ev) {
+    ev.preventDefault();
+    runSearch(searchInput.value);
+}
+// Does the page URL have ?q= in it?
+var m = /\?q=(.*)/.exec(document.location.search);
+if (m) {
+    searchInput.value = unescape(m[1]);
+    runSearch(searchInput.value);
+}
+</script>
+</body>
+</html>
