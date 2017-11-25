@@ -6,6 +6,10 @@ Try it out here: https://sf-tree-search.now.sh/
 
 The data comes from [the San Francisco Department of Public Works](https://data.sfgov.org/City-Infrastructure/Street-Tree-List/tkzw-k3nq).
 
+<img src="screenshot.png?raw=true" alt="Screenshot" width="602">
+
+## How I built this
+
 I used [csvs-to-sqlite](https://github.com/simonw/csvs-to-sqlite) to convert their CSV file into a SQLite database like this:
 
     csvs-to-sqlite Street_Tree_List.csv sf-trees.db \
