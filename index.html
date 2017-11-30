@@ -63,7 +63,8 @@ function runSearch(q) {
     }
 
     currentLayer = L.markerClusterGroup({
-        chunkedLoading: true
+        chunkedLoading: true,
+        maxClusterRadius: 50
     });
 
     var markerList = [];
