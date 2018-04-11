@@ -2,7 +2,7 @@
 
 A simple [Datasette](https://github.com/simonw/datasette) demo application.
 
-Try it out here: https://sf-tree-search.now.sh/
+Try it out here: https://sf-trees.com/
 
 The data comes from [the San Francisco Department of Public Works](https://data.sfgov.org/City-Infrastructure/Street-Tree-List/tkzw-k3nq).
 
